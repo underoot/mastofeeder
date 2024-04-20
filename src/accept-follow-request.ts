@@ -9,6 +9,7 @@ import { v4 as uuid } from "uuid";
 import { send } from "./send";
 import { ActivityPubMessage } from "./ActivityPubMessage";
 import { serverHostname } from "./env";
+import { fetchFeedForUser } from "./fetch-and-send-all-feeds";
 
 const activityStreamsContext = t.union([
   t.literal("https://www.w3.org/ns/activitystreams"),
@@ -85,6 +86,7 @@ const handleFollowRequest = async (
   try {
     await acceptFollowRequest(followHostname, follower);
     await informFollower(followHostname, follower, body);
+    await fetchFeedForUser(followHostname, follower);
     return Response.ok();
   } catch (e) {
     console.error(e);

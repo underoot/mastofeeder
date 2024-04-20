@@ -1,6 +1,5 @@
 import * as Option from "fp-ts/lib/Option";
 import { JSDOM } from "jsdom";
-import path from "path";
 import { openDb } from "./db";
 import SQL from "sql-template-strings";
 import { parseUsernameToDomainWithPath } from "./parse-domain";

@@ -16,8 +16,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("*", (req, res) => {
-  console.log(req.baseUrl);
-  console.dir(req.body, { depth: null });
   res.status(404).send("Not found");
 });
 

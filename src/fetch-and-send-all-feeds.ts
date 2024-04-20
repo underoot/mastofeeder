@@ -23,6 +23,20 @@ export const fetchAndSendAllFeeds = async () => {
   }
 };
 
+export const fetchFeedForUser = async (hostname: string, follower: string) => {
+  try {
+    const items = await fetchFeed(hostname);
+    for (const item of items.reverse()) {
+      const wasNew = await insertItem(hostname, item);
+      if (wasNew) {
+        await sendNotification(follower, hostname, item);
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 const getUniqueHostnames = async () => {
   const db = await openDb();
   const hostnames = await db.all<{ hostname: string }[]>(
@@ -65,21 +79,30 @@ const sendNotification = async (
   followedHostname: string,
   item: RssItem
 ) => {
-  const message = createNoteMessage(
-    followedHostname,
-    rssItemToNoteHtml(item),
-    getDescriptionImages(item.description ?? "")
-  );
+  const message = createNoteMessage({
+    hostname: followedHostname,
+    content: rssItemToNoteHtml(item),
+    pubDate: item.pubDate,
+    images: getDescriptionImages(item.description ?? "")
+});
   await send(message, follower);
 };
 
-const createNoteMessage = (
-  followedHostname: string,
-  content: string,
-  images: Image[]
-) => {
+type CreateNoteMessageInput = {
+  hostname: string;
+  content: string;
+  pubDate?: string;
+  images: Image[];
+};
+
+const createNoteMessage = ({
+  hostname,
+  content,
+  images,
+  pubDate
+}: CreateNoteMessageInput) => {
   const actor = `https://${serverHostname}/${encodeURIComponent(
-    followedHostname
+    hostname
   )}`;
   return {
     "@context": "https://www.w3.org/ns/activitystreams",
@@ -90,11 +113,11 @@ const createNoteMessage = (
     object: {
       id: `https://${serverHostname}/${uuid()}`,
       type: "Note",
-      published: new Date().toISOString(),
+      published: pubDate ?? new Date().toISOString(),
       attributedTo: actor,
       content,
       sensitive: false,
-      to: "https://www.w3.org/ns/activitystreams#Public",
+      cc: "https://www.w3.org/ns/activitystreams#Public",
       attachment: images.map((image) => ({
         type: "Image",
         mediaType: `image/${image.type}`,

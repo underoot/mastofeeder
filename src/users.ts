@@ -10,7 +10,7 @@ type ActivityStreamUserResponse = {
     "https://w3id.org/security/v1"
   ];
   id: string;
-  type: "Person";
+  type: "Service";
   following?: string;
   followers?: string;
   inbox?: string;
@@ -52,7 +52,7 @@ export const usersRoute: Route<
         "https://w3id.org/security/v1",
       ],
       id,
-      type: "Person",
+      type: "Service",
       preferredUsername: hostname,
       name: info.value.name,
       inbox: `${id}/inbox`,
