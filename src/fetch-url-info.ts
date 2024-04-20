@@ -54,7 +54,7 @@ const _fetchUrlInfo = async (
 ): Promise<Option.Option<UrlInfo>> => {
   const hostname = parseUsernameToDomainWithPath(username);
   try {
-    let res = await fetch(`https://${hostname}/`);
+    let res = await fetch(`https://${hostname}`);
     let additionalExtension = ""; // TODO: Refactor, the logic is getting messy
     if (!res.ok) {
       additionalExtension = ".rss";
@@ -69,12 +69,14 @@ const _fetchUrlInfo = async (
     const isRss = ["application/xml", "application/rss+xml", "text/xml"].some(
       (type) => res.headers.get("Content-Type")?.startsWith(type)
     );
-    if (isRss)
+    if (isRss) {
+      const text = await res.text();
       return Option.some({
         rssUrl: `https://${hostname}${additionalExtension}`,
-        name: parseNameFromRss(await res.text(), hostname),
+        name: parseNameFromRss(text, hostname),
         icon: await getIconForDomain(hostname),
       });
+    }
 
     const html = await res.text();
     const rssUrl =
@@ -125,7 +127,7 @@ const ensureFullUrl = (
     if (url.hostname !== null) return urlOrPath;
   } catch {}
 
-  return path.join(`https://${hostname}`, urlOrPath);
+  return `https://${hostname}${urlOrPath}`;
 };
 
 const getPngIcon = (html: string): string | undefined => {

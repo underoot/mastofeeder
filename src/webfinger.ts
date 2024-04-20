@@ -31,7 +31,6 @@ export const webfingerRoute: Route<
     const [username] = account.split("@");
     const urlInfo = await fetchUrlInfo(username);
 
-    console.log(username);
     return Response.ok({
       subject: req.query.resource,
       aliases: [],
