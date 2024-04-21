@@ -3,6 +3,7 @@ import * as Option from "fp-ts/lib/Option";
 import { xml2js, Element } from "xml-js";
 import { findAll, findOne, text } from "./xml-utils";
 import fetch from "node-fetch";
+import Parser from "rss-parser";
 
 export const fetchFeed = async (hostname: string): Promise<RssItem[]> => {
   const urlInfo = await fetchUrlInfo(hostname);
@@ -10,7 +11,7 @@ export const fetchFeed = async (hostname: string): Promise<RssItem[]> => {
   const res = await fetch(urlInfo.value.rssUrl);
   if (!res.ok) return [];
   const xml = await res.text();
-  const items = parseRssItems(xml);
+  const items = await parseRssItems(xml);
   return items;
 };
 
@@ -23,22 +24,55 @@ export type RssItem = (
   guid?: string;
 };
 
-export const parseRssItems = (xml: string): RssItem[] => {
-  const doc = xml2js(xml, { compact: false }) as Element;
-  const items = findAll("item", doc);
+export const parseRssItems = async (xml: string): Promise<RssItem[]> => {
+  const parser = new Parser({
+    customFields: {
+      item: ["media:group"],
+    },
+  });
+  const feed = await parser.parseString(xml);
 
-  return items.map((item) => {
-    const title = text(findOne("title", item))!;
-    const description = text(findOne("description", item)) ?? text(findOne("content:encoded", item));
-    const link = text(findOne("link", item));
-    const pubDate = text(findOne("pubDate", item));
-    const guid = text(findOne("guid", item));
+  return feed.items.map((item) => {
+    if ('media:group' in item) {
+      const mediaGroup = item['media:group'];
+      const mediaContent = mediaGroup['media:description'];
+      if (mediaContent) {
+        return {
+          title: item.title as string,
+          description: mediaContent.join(''),
+          link: item.link,
+          pubDate: item.pubDate,
+          guid: item.guid,
+        };
+      }
+    }
+
+    if ('content:encoded' in item) {
+      return {
+        title: item.title as string,
+        description: item['content:encoded'] as string,
+        link: item.link,
+        pubDate: item.pubDate,
+        guid: item.guid,
+      };
+    }
+
+    if ('description' in item) {
+      return {
+        title: item.title as string,
+        description: item['description'] as string,
+        link: item.link,
+        pubDate: item.pubDate,
+        guid: item.guid,
+      };
+    }
+
     return {
-      title,
-      description,
-      link,
-      pubDate,
-      guid,
+      title: item.title as string,
+      description: item.content,
+      link: item.link,
+      pubDate: item.pubDate,
+      guid: item.guid,
     };
   });
 };

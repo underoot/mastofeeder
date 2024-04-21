@@ -133,7 +133,7 @@ const rssItemToNoteHtml = (item: RssItem) => {
   const descStripped = item.description?.replace(/<img[^>]*>/g, "");
   const description = descStripped ? `<p>${descStripped}</p>` : "";
   const link = item.link ? `<a href="${item.link}">${item.link}</a>` : "";
-  return `${title}\n${description}\n${link}`;
+  return title ? `${title}\n${description}\n${link}` : `${description}\n${link}`
 };
 
 type Image = {
