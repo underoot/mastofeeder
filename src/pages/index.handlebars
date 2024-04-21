@@ -1,0 +1,44 @@
+<input type="text" placeholder="">
+<div id="result"></div>
+<script type="module">
+  import { base32 } from './rfc4648.js';
+
+  const isURL = (str) => {
+    return /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(str);
+  };
+
+  function stringToUint8Array(str) {
+    return new TextEncoder().encode(str);
+  }
+
+  document.querySelector('input').addEventListener('input', (e) => {
+    const value = e.target.value;
+
+    if (!isURL(value)) {
+      return;
+    }
+
+    if (value.includes('?')) {
+      const [hostname, ...rest] = value.split('/');
+      const restPart = rest.join('/');
+
+      const encoded = base32.stringify(stringToUint8Array(restPart)).replace(/=/g, '');
+
+      result.textContent = `${hostname}..${encoded.toLowerCase()}`;
+    } else if (value.includes('/')) {
+      const [hostname, ...rest] = value.split('/');
+      const restPart = rest.join('/').replace('/', '.');
+
+      result.textContent = `${hostname}..${restPart}`;
+    } else {
+      result.textContent = value;
+    }
+  });
+
+  result.addEventListener('click', () => {
+    const range = document.createRange();
+    range.selectNode(result);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+</script>
