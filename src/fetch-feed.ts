@@ -23,13 +23,13 @@ export type RssItem = (
   guid?: string;
 };
 
-const parseRssItems = (xml: string): RssItem[] => {
+export const parseRssItems = (xml: string): RssItem[] => {
   const doc = xml2js(xml, { compact: false }) as Element;
   const items = findAll("item", doc);
 
   return items.map((item) => {
     const title = text(findOne("title", item))!;
-    const description = text(findOne("description", item));
+    const description = text(findOne("description", item)) ?? text(findOne("content:encoded", item));
     const link = text(findOne("link", item));
     const pubDate = text(findOne("pubDate", item));
     const guid = text(findOne("guid", item));
