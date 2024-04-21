@@ -35,6 +35,13 @@ type ActivityJsonHeader = {
   'Content-Type': 'application/activity+json';
 };
 
+const getMediaType = (icon: string) => {
+  if (icon.endsWith('.png')) return 'image/png';
+  if (icon.endsWith('.jpg') || icon.endsWith('.jpeg')) return 'image/jpeg';
+  if (icon.endsWith('.gif')) return 'image/gif';
+  return 'image/png';
+}
+
 export const usersRoute: Route<
   Response.Ok<ActivityStreamUserResponse, ActivityJsonHeader> | Response.NotFound
 > = route
@@ -60,7 +67,7 @@ export const usersRoute: Route<
       icon: info.value.icon
         ? {
             type: "Image",
-            mediaType: "image/png",
+            mediaType: getMediaType(info.value.icon),
             url: info.value.icon,
           }
         : undefined,
