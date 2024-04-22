@@ -2,7 +2,7 @@ import { fetchUrlInfo } from "./fetch-url-info";
 import * as Option from "fp-ts/lib/Option";
 import fetch from "node-fetch";
 import Parser from "rss-parser";
-import { decode as decodeWin1251 } from "windows-1251";
+import { decode as decodeWin1251 } from "./win-1251";
 
 export const fetchFeed = async (hostname: string): Promise<RssItem[]> => {
   const urlInfo = await fetchUrlInfo(hostname);
@@ -10,7 +10,6 @@ export const fetchFeed = async (hostname: string): Promise<RssItem[]> => {
   const res = await fetch(urlInfo.value.rssUrl);
 
   if (!res.ok) return [];
-
 
   let xml = '';
 
