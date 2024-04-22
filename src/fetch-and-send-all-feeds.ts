@@ -130,10 +130,14 @@ const createNoteMessage = ({
 };
 
 const rssItemToNoteHtml = (item: RssItem) => {
-  const title = item.title ? `<h1>${item.title}</h1>` : "";
+  const title = item.title ? `<b>${item.title}</b>` : "";
   const descStripped = item.description?.replace(/<img[^>]*>/g, "");
   const description = descStripped ? `<p>${descStripped}</p>` : "";
   const link = item.link ? `<a href="${item.link}">${item.link}</a>` : "";
+
+  if (item.link && title) {
+    return `<a href="${item.link}"><b>${title}</b></a>\n${description}`;
+  }
   return title ? `${title}\n${description}\n${link}` : `${description}\n${link}`
 };
 
