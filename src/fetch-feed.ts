@@ -41,7 +41,6 @@ export const parseRssItems = async (xml: string): Promise<RssItem[]> => {
   const feed = await parser.parseString(xml);
 
   return feed.items.map((item) => {
-    console.log(item);
     if ('media:group' in item) {
       const mediaGroup = item['media:group'];
       const mediaContent = mediaGroup['media:description'];
