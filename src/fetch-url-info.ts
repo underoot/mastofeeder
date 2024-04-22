@@ -7,6 +7,7 @@ import { Element, xml2js } from "xml-js";
 import { findOne, text } from "./xml-utils";
 import fetch from "node-fetch";
 import { base32 } from "rfc4648";
+import { decode as decodeWin1251 } from "./win-1251";
 
 type UrlInfo = {
   rssUrl: string;
@@ -143,7 +144,15 @@ const getUrlInfoFromPage = async(url: URL, content: string): Promise<Option.Opti
   let res = await fetch(linkedUrl);
   if (!res.ok) return Option.none;
 
-  let linkedInfo = getUrlInfoFromFeed(new URL(linkedUrl, url), await res.text());
+  let text = '';
+
+  if (res.headers.get('content-type')?.includes('windows-1251')) {
+    text = decodeWin1251(await res.buffer());
+  } else {
+    text = await res.text();
+  }
+
+  let linkedInfo = getUrlInfoFromFeed(new URL(linkedUrl, url), text);
   let icon = getPngIcon(content);
   if (icon) {
     linkedInfo.icon = icon;
