@@ -1,16 +1,25 @@
 import { fetchUrlInfo } from "./fetch-url-info";
 import * as Option from "fp-ts/lib/Option";
-import { xml2js, Element } from "xml-js";
-import { findAll, findOne, text } from "./xml-utils";
 import fetch from "node-fetch";
 import Parser from "rss-parser";
+import { decode as decodeWin1251 } from "windows-1251";
 
 export const fetchFeed = async (hostname: string): Promise<RssItem[]> => {
   const urlInfo = await fetchUrlInfo(hostname);
   if (Option.isNone(urlInfo)) return [];
   const res = await fetch(urlInfo.value.rssUrl);
+
   if (!res.ok) return [];
-  const xml = await res.text();
+
+
+  let xml = '';
+
+  if (res.headers.get('content-type')?.includes('windows-1251')) {
+    xml = decodeWin1251(await res.buffer());
+  } else {
+    xml = await res.text();
+  }
+
   const items = await parseRssItems(xml);
   return items;
 };

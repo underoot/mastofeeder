@@ -23,6 +23,7 @@
     "typera-express": "^2.4.4",
     "typescript": "^5.4.4",
     "uuid": "^9.0.1",
+    "windows-1251": "^3.0.4",
     "xml-js": "^1.6.11"
   },
   "scripts": {
