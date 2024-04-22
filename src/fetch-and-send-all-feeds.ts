@@ -27,10 +27,7 @@ export const fetchFeedForUser = async (hostname: string, follower: string) => {
   try {
     const items = await fetchFeed(hostname);
     for (const item of items.reverse()) {
-      const wasNew = await insertItem(hostname, item);
-      if (wasNew) {
-        await sendNotification(follower, hostname, item);
-      }
+      await insertItem(hostname, item);
     }
   } catch (e) {
     console.error(e);
