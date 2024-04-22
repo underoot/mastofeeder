@@ -41,6 +41,7 @@ export const parseRssItems = async (xml: string): Promise<RssItem[]> => {
   const feed = await parser.parseString(xml);
 
   return feed.items.map((item) => {
+    console.log(item);
     if ('media:group' in item) {
       const mediaGroup = item['media:group'];
       const mediaContent = mediaGroup['media:description'];
@@ -53,6 +54,16 @@ export const parseRssItems = async (xml: string): Promise<RssItem[]> => {
           guid: item.guid,
         };
       }
+    }
+
+    if ('content' in item) {
+      return {
+        title: item.title as string,
+        description: (item['content'] as string)?.trim().replace('\n', '<br>'),
+        link: item.link,
+        pubDate: item.pubDate,
+        guid: item.guid,
+      };
     }
 
     if ('description' in item) {
