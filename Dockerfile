@@ -1,8 +1,8 @@
 FROM debian:bullseye as builder
 
 ENV PATH=/usr/local/node/bin:$PATH
-ARG NODE_VERSION=18.8.0
-ARG YARN_VERSION=1.22.19
+ARG NODE_VERSION=20.12.2
+ARG YARN_VERSION=1.22.22
 
 RUN apt-get update; apt install -y curl python-is-python3 pkg-config build-essential && \
     curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
