@@ -39,7 +39,7 @@ export const parseRssItems = async (xml: string): Promise<RssItem[]> => {
       if (mediaContent) {
         return {
           title: item.title as string,
-          description: mediaContent.join('')?.trim(),
+          description: mediaContent.join('')?.trim().replace('\n', '<br>'),
           link: item.link,
           pubDate: item.pubDate,
           guid: item.guid,
@@ -50,7 +50,7 @@ export const parseRssItems = async (xml: string): Promise<RssItem[]> => {
     if ('description' in item) {
       return {
         title: item.title as string,
-        description: (item['description'] as string)?.trim(),
+        description: (item['description'] as string)?.trim().replace('\n', '<br>'),
         link: item.link,
         pubDate: item.pubDate,
         guid: item.guid,
@@ -61,7 +61,7 @@ export const parseRssItems = async (xml: string): Promise<RssItem[]> => {
     if ('content:encoded' in item) {
       return {
         title: item.title as string,
-        description: (item['content:encoded'] as string)?.trim(),
+        description: (item['content:encoded'] as string)?.trim().replace('\n', '<br>'),
         link: item.link,
         pubDate: item.pubDate,
         guid: item.guid,
