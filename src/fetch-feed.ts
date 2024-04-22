@@ -47,20 +47,21 @@ export const parseRssItems = async (xml: string): Promise<RssItem[]> => {
       }
     }
 
-    if ('content:encoded' in item) {
+    if ('description' in item) {
       return {
         title: item.title as string,
-        description: (item['content:encoded'] as string)?.trim(),
+        description: (item['description'] as string)?.trim(),
         link: item.link,
         pubDate: item.pubDate,
         guid: item.guid,
       };
     }
 
-    if ('description' in item) {
+
+    if ('content:encoded' in item) {
       return {
         title: item.title as string,
-        description: (item['description'] as string)?.trim(),
+        description: (item['content:encoded'] as string)?.trim(),
         link: item.link,
         pubDate: item.pubDate,
         guid: item.guid,
